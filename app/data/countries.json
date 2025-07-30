@@ -1,0 +1,26 @@
+[
+    {
+        "country": "Nigeria",
+        "cities": [
+            "Lagos",
+            "Abuja",
+            "Kano"
+        ]
+    },
+    {
+        "country": "Ghana",
+        "cities": [
+            "Accra",
+            "Kumasi",
+            "Tamale"
+        ]
+    },
+    {
+        "country": "Kenya",
+        "cities": [
+            "Nairobi",
+            "Mombasa",
+            "Kisumu"
+        ]
+    }
+]
