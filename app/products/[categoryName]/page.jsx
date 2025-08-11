@@ -1,25 +1,20 @@
-import { use } from 'react';
 import ProductListClient from './ProductListClient';
 import ProtectedPage from '@/app/components/ProtectedPage';
 
-const mockProducts = [
-    { id: 1, name: 'Rice', price: 3500, image: '/images/rice.jpg', category: 'Groceries' },
-    { id: 2, name: 'Phone', price: 120000, image: '/images/phone.webp', category: 'Electronics' },
-    // Add more as needed
-];
+export default async function ProductPage({ params }) {
+    const { categoryName } = params;
 
-export default function ProductPage({ params }) {
-    const { categoryName } = use(params); // ✅ correct way
+    // Fetch products from backend API by category
+    const res = await fetch(`http://localhost:4000/api/vendor/items/category/${categoryName}`, {
+        cache: 'no-store'  // to avoid stale cache
+    });
 
-    const filteredProducts = mockProducts.filter(
-        (product) =>
-            product.category?.toLowerCase() === categoryName?.toLowerCase()
-    );
+    const products = res.ok ? await res.json() : [];
 
     return (
         <ProtectedPage>
             <ProductListClient
-                products={filteredProducts}
+                products={products}
                 categoryName={categoryName}
             />
         </ProtectedPage>

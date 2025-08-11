@@ -6,6 +6,7 @@ import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Script from 'next/script';
+import { Toaster } from 'react-hot-toast';
 
 export const metadata = {
   title: 'Your App',
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
           <AuthProvider>
 
             <Navbar />
+            <Toaster />
             {children}
             <Footer />
 

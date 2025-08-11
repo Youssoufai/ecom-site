@@ -1,6 +1,8 @@
 'use client';
 
 import useCart from "@/app/hooks/useCart";
+import Link from "next/link";
+
 export default function ProductListClient({ products, categoryName }) {
     const { addToCart } = useCart();
 
@@ -17,11 +19,11 @@ export default function ProductListClient({ products, categoryName }) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {products.map((product) => (
                         <div
-                            key={product.id}
+                            key={product._id} // unique key fix
                             className="bg-white rounded-xl shadow hover:shadow-lg transition duration-300 p-4"
                         >
                             <img
-                                src={product.image}
+                                src={`http://localhost:4000${product.image}`} // use full URL with image path from DB
                                 alt={product.name}
                                 className="w-full h-44 object-cover rounded-lg mb-4"
                             />
@@ -38,6 +40,15 @@ export default function ProductListClient({ products, categoryName }) {
                                 >
                                     Add to Cart
                                 </button>
+                                import Link from "next/link";
+
+                                // inside your product map, add:
+                                <Link href={`/vendor/products/${product._id}/edit`}>
+                                    <button className="text-sm px-4 py-2 border rounded-lg hover:bg-gray-100 transition">
+                                        Edit
+                                    </button>
+                                </Link>
+
                             </div>
                         </div>
                     ))}

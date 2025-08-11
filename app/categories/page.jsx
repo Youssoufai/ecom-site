@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { categories } from '../data/categories';
+import { categories } from '../vendor/dashboard/categories';
 import ProtectedPage from '../components/ProtectedPage';
 
 export default function CategoriesPage() {
