@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { categories } from "../vendor/dashboard/categories";
+
 export default function ProductEditForm({ productId }) {
     const router = useRouter();
+
     const [form, setForm] = useState({
         name: "",
         description: "",
@@ -18,33 +20,53 @@ export default function ProductEditForm({ productId }) {
 
     useEffect(() => {
         async function fetchProduct() {
-            const token = localStorage.getItem("vendorToken");
-            const res = await fetch(`http://localhost:4000/api/vendor/items/${productId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            if (res.ok) {
+            try {
+                const token = localStorage.getItem("vendorToken");
+                console.log("Token:", token);
+                if (!token) {
+                    setMessage("Authentication token not found.");
+                    return;
+                }
+
+                const res = await fetch(`http://localhost:4000/api/vendor/items/${productId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                console.log("Fetch product response status:", res.status);
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    console.error("Fetch product error response:", errorText);
+                    setMessage(`Failed to load product: ${res.status} ${res.statusText}`);
+                    return;
+                }
+
                 const product = await res.json();
                 setForm({
-                    name: product.name,
-                    description: product.description,
-                    price: product.price,
-                    category: product.category,
+                    name: product.name || "",
+                    description: product.description || "",
+                    price: product.price || "",
+                    category: product.category || "",
                     image: null,
-                    currentImage: product.image,
+                    currentImage: product.image || "",
                 });
-            } else {
-                setMessage("Failed to load product");
+                setMessage("");
+            } catch (error) {
+                setMessage("Failed to load product. Please try again.");
+                console.error("fetchProduct error:", error);
             }
         }
+
         fetchProduct();
     }, [productId]);
 
+
     const handleChange = (e) => {
         const { name, value, files } = e.target;
-        setForm({
-            ...form,
+        setForm((prev) => ({
+            ...prev,
             [name]: files ? files[0] : value,
-        });
+        }));
+        if (message) setMessage(""); // clear message on input change
     };
 
     const handleSubmit = async (e) => {
@@ -54,6 +76,11 @@ export default function ProductEditForm({ productId }) {
 
         try {
             const token = localStorage.getItem("vendorToken");
+            if (!token) {
+                setMessage("Authentication token not found.");
+                setLoading(false);
+                return;
+            }
 
             const formData = new FormData();
             formData.append("name", form.name);
@@ -63,24 +90,26 @@ export default function ProductEditForm({ productId }) {
             if (form.image) {
                 formData.append("image", form.image);
             }
+
             const res = await fetch(`http://localhost:4000/api/vendor/items/${productId}`, {
                 method: "PUT",
-                headers: new Headers({
+                headers: {
                     Authorization: `Bearer ${token}`,
-                }),
+                    // Do NOT set 'Content-Type' header when sending FormData; browser sets it automatically
+                },
                 body: formData,
             });
 
-
             const data = await res.json();
+
             if (res.ok) {
                 setMessage("✅ Product updated successfully!");
-                // Optional: redirect back to products list or details
                 router.push(`/products/${form.category}`);
             } else {
-                setMessage(`❌ ${data.message}`);
+                setMessage(`❌ ${data.message || "Failed to update product."}`);
             }
-        } catch {
+        } catch (error) {
+            console.error("handleSubmit error:", error);
             setMessage("❌ Something went wrong");
         } finally {
             setLoading(false);
@@ -117,6 +146,8 @@ export default function ProductEditForm({ productId }) {
                 value={form.price}
                 onChange={handleChange}
                 className="border p-2 w-full mb-3"
+                min="0"
+                step="0.01"
                 required
             />
 
